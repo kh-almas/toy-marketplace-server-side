@@ -32,6 +32,18 @@ async function run() {
         app.get('/mongo', (req, res) => {
             res.send('mango is ok');
         })
+
+
+        app.get('/my-toys/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = {userEmail : email};
+            const sort = { name: 1 };
+            const cursor = await toysCollection.find(query).sort(sort).limit(20);
+            const result = await cursor.toArray();
+            return res.send(result);
+        })
+
+
         app.post('/create-toy', async (req, res) => {
             const data = req.body;
             const result = await toysCollection.insertOne(data);
