@@ -12,7 +12,8 @@ app.use(express.json())
 
 
 
-const uri = `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster.9zce0xe.mongodb.net/?retryWrites=true&w=majority`;
+// const uri = `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster.9zce0xe.mongodb.net/?retryWrites=true&w=majority`;
+const uri = 'mongodb://0.0.0.0:27017';
 
 const client = new MongoClient(uri, {
     serverApi: {
@@ -25,9 +26,19 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
 
+        const myDB = client.db("CognitiveWonders");
+        const toysCollection = myDB.collection("toys");
+
         app.get('/mongo', (req, res) => {
             res.send('mango is ok');
         })
+        app.post('/create-toy', async (req, res) => {
+            const data = req.body;
+            const result = await toysCollection.insertOne(data);
+            res.send(result);
+        })
+
+
 
 
         await client.db("admin").command({ ping: 1 });
