@@ -34,11 +34,27 @@ async function run() {
         })
 
 
-        app.get('/my-toys/:email', async (req, res) => {
+        app.get('/my-toys/:email/:sortByPrice', async (req, res) => {
             const email = req.params.email;
+            const sortByPrice = req.params.sortByPrice;
             const query = {userEmail : email};
-            const sort = { name: 1 };
+            let sort = { price: -1 };
+            if(sortByPrice !== '0'){
+                sort = { price: sortByPrice };
+            }
             const cursor = await toysCollection.find(query).sort(sort).limit(20);
+            const result = await cursor.toArray();
+            return res.send(result);
+        })
+
+
+        app.get('/all-toys/:sortByPrice', async (req, res) => {
+            const sortByPrice = req.params.sortByPrice;
+            let sort = { price: -1 };
+            if(sortByPrice !== '0'){
+                sort = { price: sortByPrice };
+            }
+            const cursor = await toysCollection.find().sort(sort);
             const result = await cursor.toArray();
             return res.send(result);
         })
