@@ -48,6 +48,15 @@ async function run() {
         })
 
 
+        app.get('/single/toys/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const cursor = await toysCollection.find(query);
+            const result = await cursor.toArray();
+            return res.send(result);
+        })
+
+
         app.get('/all-toys/:sortByPrice', async (req, res) => {
             const sortByPrice = req.params.sortByPrice;
             let sort = { price: -1 };
