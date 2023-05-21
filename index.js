@@ -48,12 +48,32 @@ async function run() {
         })
 
 
-        app.get('/single/toys/:id', async (req, res) => {
+        app.get('/single-toys/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
-            const cursor = await toysCollection.find(query);
-            const result = await cursor.toArray();
-            return res.send(result);
+            const cursor = await toysCollection.findOne(query);
+            return res.send(cursor);
+        })
+
+
+        app.put('/update-toys/:id', async (req, res) => {
+            const id = req.params.id;
+            const data = req.body;
+            const query = { _id: new ObjectId(id) };
+            const updateDocument = {
+                $set: {
+                    name : data.name,
+                    price : data.price,
+                    rating: data.rating,
+                    quantity : data.quantity,
+                    brand : data.brand,
+                    age : data.age,
+                    image : data.image,
+                    description : data.description,
+                },
+            };
+            const cursor = await toysCollection.updateOne(query, updateDocument);
+            return res.send(cursor);
         })
 
 
