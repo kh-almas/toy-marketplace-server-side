@@ -10,10 +10,8 @@ app.use(cors());
 app.use(express.json())
 
 
-
-
-// const uri = `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster.9zce0xe.mongodb.net/?retryWrites=true&w=majority`;
-const uri = 'mongodb://0.0.0.0:27017';
+const uri = `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster.9zce0xe.mongodb.net/?retryWrites=true&w=majority`;
+// const uri = 'mongodb://0.0.0.0:27017';
 
 const client = new MongoClient(uri, {
     serverApi: {
@@ -29,6 +27,23 @@ async function run() {
         const myDB = client.db("CognitiveWonders");
         const toysCollection = myDB.collection("toys");
 
+        const indexKeys = { name: 1 };
+        const indexOptions = { name: "toyTitle" };
+        const result = await toysCollection.createIndex(indexKeys, indexOptions);
+
+        app.get("/search/:text", async (req, res) => {
+            const text = req.params.text;
+            console.log(text)
+            const result = await toysCollection
+                .find({
+                    $or: [
+                        { name: { $regex: text, $options: "i" } },
+                    ],
+                })
+                .toArray();
+            res.send(result);
+        });
+
         app.get('/mongo', (req, res) => {
             res.send('mango is ok');
         })
@@ -42,7 +57,7 @@ async function run() {
             if(sortByPrice !== '0'){
                 sort = { price: sortByPrice };
             }
-            const cursor = await toysCollection.find(query).sort(sort).limit(20);
+            const cursor = await toysCollection.find(query).sort(sort).collation({locale: "en_US", numericOrdering: true}).limit(20);
             const result = await cursor.toArray();
             return res.send(result);
         })
@@ -83,7 +98,7 @@ async function run() {
             if(sortByPrice !== '0'){
                 sort = { price: sortByPrice };
             }
-            const cursor = await toysCollection.find().sort(sort);
+            const cursor = await toysCollection.find().sort(sort).collation({locale: "en_US", numericOrdering: true}).limit(20);
             const result = await cursor.toArray();
             return res.send(result);
         })
